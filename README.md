@@ -21,3 +21,10 @@ The scope is deliberately narrow: the input is the *body* of the literal, not th
 A `#` not followed by a digit (or `$` then a hex digit) is treated as a literal `#`. This matches the behaviour of most Delphi code generators when emitting a standalone hash they failed to escape, but means a malformed escape like `#x` silently becomes the two characters `#x`. If you need strict validation, check the decoded length against expectations or pre-scan for `#` sequences that don't match `#(\$[0-9A-Fa-f]+|[0-9]+)`.
 
 Surrogate code points (`#55296` through `#57343`) raise `PascalStringDecodeError`, because Python's `chr` rejects them and they cannot form a valid character on their own.
+
+## Design notes
+
+The window stores values eagerly rather than keeping running aggregates. Running
+sums drift with floating point over long streams, and recomputing from a small
+buffer is cheap enough that the drift is not worth the speed.
+
